@@ -1,15 +1,15 @@
+const PORT = process.env.PORT || 5000;
+
 var TorrentSearchApi = require('torrent-search-api');
 TorrentSearchApi.enablePublicProviders();
 
 var express = require("express");
 var app = express();
 
-app.get("/", requestHandler);
-app.get("/search/:query/:category", requestHandler);
+app.get('/', requestHandler);
+app.get('/search/:query/:category', requestHandler);
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
- });
+app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 function requestHandler(req, res, next){
   if(checkRequest(req.params)){
