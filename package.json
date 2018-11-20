@@ -1,0 +1,19 @@
+{
+  "name": "torrentsearch",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "express": "^4.16.4",
+    "torrent-search-api": "^2.0.3",
+    "unminified-webpack-plugin": "^2.0.0",
+    "webpack-cli": "^3.1.2",
+    "webpack-node-externals": "^1.7.2",
+    "webpack": "^4.25.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
