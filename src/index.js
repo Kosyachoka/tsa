@@ -62,7 +62,7 @@ function checkRequest(params){
 function ThePirateBayProvider(){
   return {
     "name": "ThePirateBayProxy",
-    "baseUrl": "https://pirateproxy.gdn/",
+    "baseUrl": "https://pirateproxy.gdn",
     "searchUrl": "/search/{query}/0/7/{cat}",
     "categories": {
        "All": "0",
