@@ -2,10 +2,11 @@ const PORT = process.env.PORT || 5000;
 const TorrentSearchApi = require('torrent-search-api');
 TorrentSearchApi.loadProvider(ThePirateBayProvider());
 //TorrentSearchApi.enablePublicProviders();
-TorrentSearchApi.enableProvider('Torrent9');
+//TorrentSearchApi.enableProvider('Torrent9');
 TorrentSearchApi.enableProvider('1337x');
 TorrentSearchApi.enableProvider('Torrentz2');
 TorrentSearchApi.enableProvider('ThePirateBayProxy');
+TorrentSearchApi.enableProvider('Rarbg');
 
 console.log("Using providers:");
 console.log(TorrentSearchApi.getActiveProviders().map(t => t.name));
@@ -20,16 +21,27 @@ app.get('/', (request, response, next) => {
   response.end();
 });
 
+app.get('/ax', (request, response, next) => {
+  response.json({
+    s:[
+      
+    ],
+    t:30000});
+});
+
 app.post('/', (request, response, next) => {
 
   let searchRequest = request.body;
 
+  let torrentName = transformTorrentName(searchRequest.torrent);
+
   if(checkRequest(searchRequest)){
-    let searchPromise = (searchRequest.torrent === undefined || searchRequest.torrent == ''
-    ? TorrentSearchApi.search(searchRequest.query, searchRequest.category, 10) 
-    : TorrentSearchApi.search([searchRequest.torrent], searchRequest.query, searchRequest.category, 10));
+    let searchPromise = (torrentName === undefined || torrentName == ''
+    ? TorrentSearchApi.search(searchRequest.query, searchRequest.category, 15) 
+    : TorrentSearchApi.search([torrentName], searchRequest.query, searchRequest.category, 15));
 
     searchPromise.then((torrents) => {
+      console.log('torrent:' + torrentName + '| query:' + searchRequest.query + '| results:' + torrents.length);
       response.json(torrents);
       response.end();
     }).catch((e) => {
@@ -56,6 +68,16 @@ function checkRequest(params){
   else{
     console.log('request check fail {params.query:"' + params.query +'", params.category:"' + params.category + '"}');
     return false;
+  }
+}
+
+function transformTorrentName(torrentName){
+  switch(torrentName){
+    case 'Torrent9':
+    return 'Rarbg';
+
+    default:
+    return torrentName;
   }
 }
 
