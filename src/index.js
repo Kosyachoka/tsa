@@ -1,4 +1,6 @@
-const PORT = process.env.PORT || 5000;
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
+
 const TorrentSearchApi = require('torrent-search-api');
 TorrentSearchApi.loadProvider(ThePirateBayProvider());
 //TorrentSearchApi.enablePublicProviders();
@@ -56,7 +58,7 @@ app.post('/', (request, response, next) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+app.listen(server_port, server_ip_address, () => console.log("Listening on " + server_ip_address + ", port " + server_port));
 
 function checkRequest(params){
   let result = (params.query !== undefined && 
