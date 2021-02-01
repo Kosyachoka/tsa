@@ -1,13 +1,8 @@
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-
+const PORT = process.env.PORT || 5000;
 const TorrentSearchApi = require('torrent-search-api');
-TorrentSearchApi.loadProvider(ThePirateBayProvider());
-//TorrentSearchApi.enablePublicProviders();
-//TorrentSearchApi.enableProvider('Torrent9');
 TorrentSearchApi.enableProvider('1337x');
-TorrentSearchApi.enableProvider('Torrentz2');
-TorrentSearchApi.enableProvider('ThePirateBayProxy');
+TorrentSearchApi.enableProvider('Yts');
+TorrentSearchApi.enableProvider('ThePirateBay');
 TorrentSearchApi.enableProvider('Rarbg');
 
 console.log("Using providers:");
@@ -25,10 +20,16 @@ app.get('/', (request, response, next) => {
 
 app.get('/ax', (request, response, next) => {
   response.json({
-    s:[
-      
-    ],
-    t:30000});
+    s:[],
+    t:0,
+    webads: [
+      "https://torrentgear.azurewebsites.net/728x90.html",
+      "https://torrentgear.azurewebsites.net/320x50.html",
+      "https://torrentgear.azurewebsites.net/320x50_2.html"
+  ],
+    refresh: 60,
+    gh: false
+  });
 });
 
 app.post('/', (request, response, next) => {
@@ -43,8 +44,10 @@ app.post('/', (request, response, next) => {
     : TorrentSearchApi.search([torrentName], searchRequest.query, searchRequest.category, 15));
 
     searchPromise.then((torrents) => {
-      console.log('torrent:' + torrentName + '| query:' + searchRequest.query + '| results:' + torrents.length);
-      response.json(torrents);
+      response.json(torrents.sort((a, b) => {
+        return (a.seeds == b.seeds ? (a.peers == b.peers ? 0 : (a.peers > b.peers ? -1 : 1)) : (a.seeds > b.seeds ? -1 : 1))
+      }));
+
       response.end();
     }).catch((e) => {
       console.log(e);
@@ -58,7 +61,7 @@ app.post('/', (request, response, next) => {
   }
 });
 
-app.listen(server_port, server_ip_address, () => console.log("Listening on " + server_ip_address + ", port " + server_port));
+app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 function checkRequest(params){
   let result = (params.query !== undefined && 
@@ -77,40 +80,12 @@ function transformTorrentName(torrentName){
   switch(torrentName){
     case 'Torrent9':
     return 'Rarbg';
+    case 'ThePirateBayProxy':
+    return 'ThePirateBay';
+    case 'Torrentz2':
+    return 'Yts';
 
     default:
     return torrentName;
-  }
-}
-
-function ThePirateBayProvider(){
-  return {
-    "name": "ThePirateBayProxy",
-    "baseUrl": "https://pirateproxy.gdn",
-    "searchUrl": "/search/{query}/0/7/{cat}",
-    "categories": {
-       "All": "0",
-       "Audio": "100",
-       "Video": "200",
-       "Applications": "300",
-       "Games": "400",
-       "Porn": "500",
-       "Other": "600",
-       "Top100": "url:/top/all"
-    },
-    "defaultCategory": "All",
-    "resultsPerPageCount": 30,
-    "itemsSelector": "#searchResult tr",
-    "itemSelectors": {
-       "title": "a.detLink@text",
-       "time": "font.detDesc@text | match:\"Uploaded\\s(.+?),\"",
-       "seeds": "td:nth-child(3) | int",
-       "peers": "td:nth-child(4) | int",
-       "size": "font.detDesc@text | match:\"Size\\s(.+?),\"",
-       "magnet": "a[title=\"Download this torrent using magnet\"]@href",
-       "desc": "div.detName a@href"
-    },
-    "paginateSelector": "a:has(img[alt=\"Next\"])@href",
-    "torrentDetailsSelector": "div.nfo > pre@text"
   }
 }
