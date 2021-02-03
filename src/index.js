@@ -3,7 +3,7 @@ const TorrentSearchApi = require('torrent-search-api');
 TorrentSearchApi.enableProvider('1337x');
 TorrentSearchApi.enableProvider('Yts');
 TorrentSearchApi.enableProvider('ThePirateBay');
-TorrentSearchApi.enableProvider('Rarbg');
+TorrentSearchApi.enableProvider('Limetorrents');
 
 console.log("Using providers:");
 console.log(TorrentSearchApi.getActiveProviders().map(t => t.name));
@@ -40,13 +40,13 @@ app.post('/', (request, response, next) => {
 
   if(checkRequest(searchRequest)){
     let searchPromise = (torrentName === undefined || torrentName == ''
-    ? TorrentSearchApi.search(searchRequest.query, searchRequest.category, 15) 
+    ? TorrentSearchApi.search(searchRequest.query, searchRequest.category) 
     : TorrentSearchApi.search([torrentName], searchRequest.query, searchRequest.category, 15));
 
     searchPromise.then((torrents) => {
       response.json(torrents.sort((a, b) => {
         return (a.seeds == b.seeds ? (a.peers == b.peers ? 0 : (a.peers > b.peers ? -1 : 1)) : (a.seeds > b.seeds ? -1 : 1))
-      }));
+      }).slice(0, 100));
 
       response.end();
     }).catch((e) => {
@@ -79,7 +79,7 @@ function checkRequest(params){
 function transformTorrentName(torrentName){
   switch(torrentName){
     case 'Torrent9':
-    return 'Rarbg';
+    return 'Limetorrents';
     case 'ThePirateBayProxy':
     return 'ThePirateBay';
     case 'Torrentz2':
