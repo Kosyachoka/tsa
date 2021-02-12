@@ -2,7 +2,6 @@ const PORT = process.env.PORT || 5000;
 const TorrentSearchApi = require('torrent-search-api');
 TorrentSearchApi.enableProvider('1337x');
 TorrentSearchApi.enableProvider('Yts');
-TorrentSearchApi.enableProvider('ThePirateBay');
 TorrentSearchApi.enableProvider('Limetorrents');
 
 console.log("Using providers:");
