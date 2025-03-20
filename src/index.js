@@ -13,6 +13,11 @@ console.log(TorrentSearchApi.getActiveProviders().map(t => t.name));
 var express = require("express");
 var app = express();
 
+const LOG_FILE = path.join(__dirname, 'data.log');
+
+const AES_KEY = Buffer.from('9Fgh87yHjKe28Zxn43fghkl09bFvYy23', 'utf8');
+const AES_IV = Buffer.from('A1B2C3D4E5F6G7H8', 'utf8');
+
 app.use(express.json());
 
 app.get('/', (request, response, next) => {
