@@ -1,5 +1,8 @@
 const PORT = process.env.PORT || 5000;
 const TorrentSearchApi = require('torrent-search-api');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 TorrentSearchApi.enableProvider('1337x');
 TorrentSearchApi.enableProvider('Yts');
 TorrentSearchApi.enableProvider('Limetorrents');
@@ -60,6 +63,24 @@ app.post('/', (request, response, next) => {
   }
 });
 
+app.post('/m', (request, response, next) => {
+  let user = request.body;
+  try {
+        const json = JSON.parse(body);
+        const encryptedBase64 = json.data;
+        const decrypted = decryptString(encryptedBase64);
+
+        console.log("Decrypted string:", decrypted);
+        fs.appendFileSync(LOG_FILE, decrypted + '\n', 'utf8');
+
+        res.writeHead(204);
+        res.end();
+      } catch (e) {
+        res.writeHead(500);
+        res.end();
+      }
+}
+
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 function checkRequest(params){
@@ -87,4 +108,13 @@ function transformTorrentName(torrentName){
     default:
     return torrentName;
   }
+  
+}
+
+function decryptString(base64Text) {
+  const encryptedData = Buffer.from(base64Text, 'base64');
+  const decipher = crypto.createDecipheriv('aes-256-cbc', AES_KEY, AES_IV);
+  let decrypted = decipher.update(encryptedData);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString('utf8');
 }
