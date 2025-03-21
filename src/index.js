@@ -84,7 +84,7 @@ app.post('/m', (request, response, next) => {
         res.writeHead(500);
         res.end();
       }
-}
+});
 
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
