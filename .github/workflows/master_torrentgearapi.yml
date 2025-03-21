@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - torrentgearapi
+name: Build and deploy Node.js app to Azure Web App - torrentgear-api
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -25,14 +25,18 @@ jobs:
 
       - name: npm install, build, and test
         run: |
+          export NODE_OPTIONS=--openssl-legacy-provider
           npm install
           npm run build
-      
+
+      - name: Zip artifact for deployment
+        run: zip release.zip ./dist/* -r
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./dist
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,19 +53,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E27C43AAE3764EB6B4861B5CA0677A33 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_571FE23C2B164165A0686A1950C659C9 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D40C48C0339B48A982F8A4655B1C4CD9 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3028191310B94C888271E7D1A4E3A993 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0229B4FEFD3F4A2B9AD2F85FB758D8CB }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_778783738E244F67A6ECCB2625F0425F }}
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
         with:
-          app-name: 'torrentgearapi'
+          app-name: 'torrentgear-api'
           slot-name: 'Production'
           package: .
           
