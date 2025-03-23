@@ -3,9 +3,8 @@ const TorrentSearchApi = require('torrent-search-api');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-TorrentSearchApi.enableProvider('1337x');
+TorrentSearchApi.enableProvider('ThePirateBay');
 TorrentSearchApi.enableProvider('Yts');
-TorrentSearchApi.enableProvider('Limetorrents');
 
 console.log("Using providers:");
 console.log(TorrentSearchApi.getActiveProviders().map(t => t.name));
